@@ -47,13 +47,10 @@ var saveTasks = function () {
 var auditTask = function (taskEl) {
   // get date from task element
   var date = $(taskEl).find("span").text().trim();
-  // ensure it worked
-  // console.log(date);
 
   // convert to moment object at 5:00pm
   var time = moment(date, "L").set("hour", 17);
   // this should print out an object for the value of the date variable, but at 5:00pm of that date
-  // console.log(time);
 
   // remove any old classes from element
   $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
@@ -64,8 +61,6 @@ var auditTask = function (taskEl) {
   } else if (Math.abs(moment().diff(time, "days")) <= 2) {
     $(taskEl).addClass("list-group-item-warning");
   }
-
-  console.log(taskEl);
 };
 
 $(".list-group").on("click", "p", function () {
@@ -156,16 +151,19 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
-  activate: function (event) {
+  activate: function (event, ui) {
     $(this).addClass("dropover");
     $(".bottom-trash").addClass("bottom-trash-drag");
   },
-  deactivate: function (event) {
+  deactivate: function (event, ui) {
     $(this).removeClass("dropover");
     $(".bottom-trash").removeClass("bottom-trash-drag");
   },
   over: function (event) {
     $(event.target).addClass("dropover-active");
+  },
+  out: function (event) {
+    $(event.target).removeClass("dropover-active");
   },
   update: function () {
     // array to store the task data in
@@ -175,19 +173,14 @@ $(".card .list-group").sortable({
     $(this)
       .children()
       .each(function () {
-        var text = $(this).find("p").text().trim();
-
-        var date = $(this).find("span").text().trim();
-
-        // add task data to the temp array as an object
+        // save values in temp array
         tempArr.push({
-          text: text,
-          date: date,
+          text: $(this).find("p").text().trim(),
+
+          date: $(this).find("span").text().trim(),
         });
       });
 
-    // console.log(tempArr);
-    console.log($(this).attr("id"));
     // trim down list's ID to match object property
     var arrName = $(this).attr("id").replace("list-", "");
     // update array on tasks object and save
@@ -207,7 +200,6 @@ $("#trash").droppable({
     $(".bottom-trash").addClass("bottom-trash-activate");
   },
   out: function (event, ui) {
-    $(event.target).removeClass("dropover-active");
     $(".bottom-trash").removeClass("bottom-trash-active");
   },
 });
